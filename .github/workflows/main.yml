@@ -1,0 +1,42 @@
+name: Unit Tests
+
+# Trigger on Push to Main or any Pull Request
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  build-and-test:
+    name: Build & Test
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x] # Test on Node 18 and 20
+
+    steps:
+      # 1. Checkout your code
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # 2. Setup Node.js
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'yarn' # Auto-cache node_modules to make it faster
+
+      # 3. Install Dependencies
+      - name: Install Dependencies
+        run: yarn install --frozen-lockfile
+
+      # 4. Run Build (Check for Typescript errors)
+      # (Optional: Add "build": "tsc" to your package.json scripts first)
+      # - name: Build
+      #   run: yarn build
+
+      # 5. Run Unit Tests
+      - name: Run Jest Tests
+        run: yarn test --verbose
